@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-function QuestionForm(props) {
+function QuestionForm({ questions, setQuestions}) {
   const [formData, setFormData] = useState({
     prompt: "",
     answer1: "",
@@ -9,17 +9,37 @@ function QuestionForm(props) {
     answer4: "",
     correctIndex: 0,
   });
+  const [questionData, setQuestionData] = useState({})
 
   function handleChange(event) {
     setFormData({
       ...formData,
       [event.target.name]: event.target.value,
-    });
+    })
   }
+
+  useEffect(() => {
+    setQuestionData({
+      "prompt": formData.prompt,
+      "answers": [formData.answer1, formData.answer2, formData.answer3, formData.answer4],
+      "correctIndex": parseInt(formData.correctIndex)
+    })
+  }, [setFormData, formData.prompt, formData.answer1, formData.answer2, formData.answer3, formData.answer4, formData.correctIndex]);
 
   function handleSubmit(event) {
     event.preventDefault();
-    console.log(formData);
+    fetch("http://localhost:4000/questions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(questionData),
+    })
+    .then(res => res.json())
+    .then(data => console.log(data))
+
+    // setQuestions([...questions, questionData]) 
+  // {/*Above line can be included, although, it is redundant: the moment you navigate to QuestionList, it will be set by QuestionList.js line 9*/}
   }
 
   return (
